@@ -96,6 +96,15 @@ let countdownTimer;
 let timeLeft = intervalDuration;
 let countdownTime = 3; // 3-second countdown
 
+// Function to play the interval sound for only 2 seconds
+function playIntervalSound() {
+  intervalSound.play();
+  setTimeout(function() {
+    intervalSound.pause(); // Stop the sound
+    intervalSound.currentTime = 0; // Rewind to the start
+  }, 2000); // Set the time for 2 seconds
+}
+
 // Update the interval display
 function updateIntervalDisplay() {
   document.getElementById('current-interval').textContent = intervalDuration + 's Workout';
@@ -117,7 +126,7 @@ function startCountdown() {
     countdownSound.play();
     if (countdownTime <= 0) {
       clearInterval(countdownTimer);
-      intervalSound.play();
+      playIntervalSound() 
       startTimer(); // Start the workout interval
     } else {
       document.getElementById('time').textContent = '00:00:0' + countdownTime;
@@ -135,7 +144,7 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(intervalTimer);
       if (currentIntervalIndex < intervals.length - 1) {
-        intervalSound.play();
+        playIntervalSound();
         currentIntervalIndex++;
         intervalDuration = intervals[currentIntervalIndex];
         timeLeft = intervalDuration;
