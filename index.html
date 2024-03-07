@@ -85,14 +85,16 @@ const intervals = [
   60, 60, 60, 30, 60, 60, 60, 60, 60, 60, 60, 30,
   60, 60, 60, 60, 60, 60, 60, 30, 60, 60, 60, 60, 60, 60, 60, 120
 ];
-const startSound = new Audio('StartWorkout.MP3');
-const alarmSound = new Audio('Alarm.MP3');
+const countdownSound = new Audio('StartWorkout.MP3'); // This will be your countdown sound
+const intervalSound = new Audio('Alarm.MP3'); // This will play when an interval starts
 const finishSound = new Audio('FinishWorkout.MP3');
 
 let currentIntervalIndex = 0;
 let intervalDuration = intervals[currentIntervalIndex];
 let intervalTimer;
+let countdownTimer;
 let timeLeft = intervalDuration;
+let countdownTime = 3; // 3-second countdown
 
 // Update the interval display
 function updateIntervalDisplay() {
@@ -108,12 +110,24 @@ function updateTimerDisplay() {
   document.getElementById('time').textContent = `00:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 }
 
+  // Function to start the countdown
+function startCountdown() {
+  updateIntervalDisplay();
+  countdownTimer = setInterval(function() {
+    countdownSound.play();
+    if (countdownTime <= 0) {
+      clearInterval(countdownTimer);
+      intervalSound.play();
+      startTimer(); // Start the workout interval
+    } else {
+      document.getElementById('time').textContent = '00:00:0' + countdownTime;
+      countdownTime--;
+    }
+  }, 1000);
+}
+
 // Start the timer
 function startTimer() {
-  if (currentIntervalIndex === 0) {
-    startSound.play();
-  }
-
   intervalTimer = setInterval(function() {
     timeLeft -= 1;
     updateTimerDisplay();
@@ -121,7 +135,7 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(intervalTimer);
       if (currentIntervalIndex < intervals.length - 1) {
-        alarmSound.play();
+        intervalSound.play();
         currentIntervalIndex++;
         intervalDuration = intervals[currentIntervalIndex];
         timeLeft = intervalDuration;
@@ -146,7 +160,10 @@ function clearTimer() {
 }
 
 // Event listeners for buttons
-document.getElementById('start-button').addEventListener('click', startTimer);
+document.getElementById('start-button').addEventListener('click', function() {
+  this.disabled = true; // Disable the start button during countdown
+  startCountdown(); // Start the countdown before the workout
+});
 document.getElementById('clear-button').addEventListener('click', clearTimer);
 
 // Initialize display
