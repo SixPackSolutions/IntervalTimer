@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workout Interval Timer</title>
+<style>
+#timer-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin-top: 50px;
+}
+
+#timer {
+  font-size: 48px;
+  color: #fff;
+  background: #333;
+  display: inline-block;
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+}
+
+#progress-container {
+  width: 100%;
+  height: 20px;
+  background: #eee;
+  border-radius: 10px;
+  margin-top: 10px;
+  position: relative;
+}
+
+#progress-bar {
+  width: 0;
+  height: 100%;
+  background: #76b852; /* Green */
+  border-radius: 10px;
+  position: absolute;
+}
+
+.timer-button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#start-button {
+  background-color: #4CAF50; /* Green */
+}
+
+#clear-button {
+  background-color: #f44336; /* Red */
+}
+
+#interval-chart {
+  background: #f3f3f3;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+</style>
+</head>
+<body>
+<div id="timer-container">
+  <div id="timer">
+    <span id="time">00:00:00</span>
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+  </div>
+  <button id="start-button" class="timer-button">Start</button>
+  <button id="clear-button" class="timer-button">Clear</button>
+  <div id="interval-chart">
+   <p>Current Interval: <span id="current-interval">60s Workout</span></p>
+    <p>Next Interval: <span id="next-interval">60s Workout</span></p>
+  </div>
+</div>
+<script>
+// Define the intervals in seconds and the sounds
+const intervals = [
+  60, 60, 60, 30, 60, 60, 60, 60, 60, 60, 60, 30,
+  60, 60, 60, 60, 60, 60, 60, 30, 60, 60, 60, 60, 60, 60, 60, 120
+];
+const startSound = new Audio('StartWorkout.MP3');
+const alarmSound = new Audio('Alarm.MP3');
+const finishSound = new Audio('FinishWorkout.MP3');
+
+let currentIntervalIndex = 0;
+let intervalDuration = intervals[currentIntervalIndex];
+let intervalTimer;
+let timeLeft = intervalDuration;
+
+// Update the interval display
+function updateIntervalDisplay() {
+  document.getElementById('current-interval').textContent = intervalDuration + 's Workout';
+  const nextInterval = intervals[currentIntervalIndex + 1] || 'None';
+  document.getElementById('next-interval').textContent = nextInterval + 's Workout';
+}
+
+// Update the timer display
+function updateTimerDisplay() {
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
+  document.getElementById('time').textContent = `00:${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+}
+
+// Start the timer
+function startTimer() {
+  if (currentIntervalIndex === 0) {
+    startSound.play();
+  }
+
+  intervalTimer = setInterval(function() {
+    timeLeft -= 1;
+    updateTimerDisplay();
+
+    if (timeLeft <= 0) {
+      clearInterval(intervalTimer);
+      if (currentIntervalIndex < intervals.length - 1) {
+        alarmSound.play();
+        currentIntervalIndex++;
+        intervalDuration = intervals[currentIntervalIndex];
+        timeLeft = intervalDuration;
+        updateIntervalDisplay();
+        startTimer(); // start next interval
+      } else {
+        finishSound.play();
+        alert('Workout complete!');
+      }
+    }
+  }, 1000);
+}
+
+// Clear the timer
+function clearTimer() {
+  clearInterval(intervalTimer);
+  currentIntervalIndex = 0;
+  intervalDuration = intervals[currentIntervalIndex];
+  timeLeft = intervalDuration;
+  updateTimerDisplay();
+  updateIntervalDisplay();
+}
+
+// Event listeners for buttons
+document.getElementById('start-button').addEventListener('click', startTimer);
+document.getElementById('clear-button').addEventListener('click', clearTimer);
+
+// Initialize display
+updateTimerDisplay();
+updateIntervalDisplay();
+</script>
+</body>
+</html>
